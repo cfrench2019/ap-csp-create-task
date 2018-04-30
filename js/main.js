@@ -37,6 +37,19 @@
             return '#' + rgbArr.map(component => component.toString(16)).map(hex => hex.length === 1 ? '0' + hex : hex).join('');
         };
 
+        const rgbArrayToRgba = function(rgbArr, a) {
+            return 'rgba(' + rgbArr.concat(a) + ')';
+        };
+
+        const getFlattenedRgbArray = function(rgbArrUnderlay, rgbArrOverlay, a) {
+            const flattenedRgbArray = [];
+            for (let i = 0; i < 3; ++i) {
+                flattenedRgbArray[i] = Math.floor(rgbArrUnderlay[i] * (1 - a) + (rgbArrOverlay[i] * a));
+            }
+
+            return flattenedRgbArray;
+        };
+
         /*
          * ##########
          * # Canvas #
@@ -47,6 +60,18 @@
         const ctx = canvas.getContext('2d');
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
+
+        if (Modernizr.fullscreen && screenfull.enabled) {
+            canvas.ondblclick = function() {
+                screenfull.toggle(this);
+            };
+        }
+
+        ctx.clear = function() {
+            this.clearRect(0, 0, canvasWidth, canvasHeight);
+        };
+
+        // Movement
         const leftKeyCode = 37;
         const rightKeyCode = 39;
         let leftKeyDown = false;
@@ -80,14 +105,28 @@
             }
         };
 
-        if (Modernizr.fullscreen && screenfull.enabled) {
-            canvas.ondblclick = function() {
-                screenfull.toggle(this);
-            };
-        }
+        const nextT = function(onNewT) {
+            if (move === 1) {
+                --t;
+                if (t < lowestT) {
+                    lowestT = t;
+                    onNewT();
+                }
+            } else if (move === 2) {
+                ++t;
+                if (t > highestT) {
+                    highestT = t;
+                    onNewT();
+                }
+            }
+        };
 
-        ctx.clear = function() {
-            this.clearRect(0, 0, canvasWidth, canvasHeight);
+        // Time
+        const maxTime = 3600;
+        let time = 0;
+
+        const nextTime = function() {
+            time = (time + 1) % (maxTime + 1) === 0 ? 0 : (time + 1);
         };
 
         /*
@@ -95,6 +134,9 @@
          * # Objects #
          * ###########
          */
+
+        // Stars
+        const stars = [];
 
         // Cacti
         const cacti = [];
@@ -104,6 +146,10 @@
          * # Dimensions #
          * ##############
          */
+
+        // Stars
+        const starR = 1;
+        const totalStars = 50;
 
         // Hills
         const backHillsY = 120;
@@ -149,6 +195,10 @@
 
         // Sky
         const skyColor = '#b9e8ff';
+        const nightColor = '#151b54';
+
+        // Stars
+        const starColor = '#ffffff';
 
         // Hills
         const backHillsColor = '#d5c9a6';
@@ -167,16 +217,43 @@
          * ##############
          */
 
+        const getNightOverlayA = function() {
+            return time < maxTime / 2 ? mapToRange(time, 0, maxTime / 2, 0, 0.5) : mapToRange(time, maxTime / 2, maxTime, 0.5, 0);
+        };
+
         const drawSky = function() {
             ctx.save();
-            ctx.fillStyle = skyColor;
+            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(skyColor), hexToRgbArray(nightColor), getNightOverlayA()));
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
             ctx.restore();
         };
 
+        const drawStar = function() {
+            ctx.save();
+            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(getFlattenedRgbArray(hexToRgbArray(skyColor), hexToRgbArray(nightColor), getNightOverlayA()), hexToRgbArray(starColor), getNightOverlayA()));
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, starR, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        };
+
+        const drawStars = function() {
+            if (stars.length) {
+                stars.forEach(star => star.draw());
+            } else {
+                for (let i = 0; i < totalStars; ++i) {
+                    stars.push({
+                        x: Math.random() * canvasWidth,
+                        y: Math.random() * groundLevel,
+                        draw: drawStar
+                    });
+                }
+            }
+        };
+
         const drawHills = function(y, offset, amplitude, frequency, color, t) {
             ctx.save();
-            ctx.fillStyle = color;
+            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(color), hexToRgbArray(nightColor), getNightOverlayA()));
 
             ctx.beginPath();
             ctx.moveTo(0, y);
@@ -194,6 +271,7 @@
 
         const drawBackground = function() {
             drawSky();
+            drawStars();
             drawHills(backHillsY, backHillsOffset, backHillsAmplitude, backHillsFrequency, backHillsColor, t / 50);
             drawHills(frontHillsY, frontHillsOffset, frontHillsAmplitude, frontHillsFrequency, frontHillsColor, t / 25);
         };
@@ -206,7 +284,7 @@
 
         const drawGround = function() {
             ctx.save();
-            ctx.fillStyle = sandColor;
+            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(sandColor), hexToRgbArray(nightColor), getNightOverlayA()));
             ctx.fillRect(0, groundLevel, canvasWidth, canvasHeight);
             ctx.restore();
         };
@@ -214,7 +292,7 @@
         const drawCactusSegment = function(x1, y1, x2, y2) {
             ctx.save();
             ctx.lineWidth = this.r * 2;
-            ctx.strokeStyle = ctx.fillStyle = this.color;
+            ctx.strokeStyle = ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(this.color), hexToRgbArray(nightColor), getNightOverlayA()));
 
             ctx.beginPath();
             ctx.arc(x1, y1, this.r, 0, Math.PI * 2);
@@ -239,6 +317,18 @@
             for (let i = 0; i < this.nodes.length; ++i) {
                 for (let j = 0; j < this.nodes[i].segments.length; ++j) {
                     this.drawSegment(this.nodes[i].x - modifiedT, this.nodes[i].y, this.nodes[i].segments[j].terminalX - modifiedT, this.nodes[i].segments[j].terminalY);
+                }
+            }
+        };
+
+        const generateCacti = function() {
+            if (move === 1 && t % Math.floor(canvasWidth / maxCactusSpeed) === 0) {
+                for (let i = 0; i < totalCacti; ++i) {
+                    createCactus(() => getRandomNumber(t * maxCactusSpeed, t * maxCactusSpeed - canvasWidth));
+                }
+            } else if (move === 2 && t % Math.floor(canvasWidth / maxCactusSpeed) === 0) {
+                for (let i = 0; i < totalCacti; ++i) {
+                    createCactus(() => getRandomNumber(t * maxCactusSpeed + canvasWidth, t * maxCactusSpeed + (canvasWidth * 2)));
                 }
             }
         };
@@ -342,29 +432,8 @@
             drawBackground();
             drawForeground();
             ctx.restore();
-
-            if (move === 1) {
-                --t;
-                if (t < lowestT) {
-                    lowestT = t;
-                    if (t % Math.floor(canvasWidth / maxCactusSpeed) === 0) {
-                        for (let i = 0; i < totalCacti; ++i) {
-                            createCactus(() => getRandomNumber(t * maxCactusSpeed, t * maxCactusSpeed - canvasWidth));
-                        }
-                    }
-                }
-            } else if (move === 2) {
-                ++t;
-                if (t > highestT) {
-                    highestT = t;
-                    if (t % Math.floor(canvasWidth / maxCactusSpeed) === 0) {
-                        for (let i = 0; i < totalCacti; ++i) {
-                            createCactus(() => getRandomNumber(t * maxCactusSpeed + canvasWidth, t * maxCactusSpeed + (canvasWidth * 2)));
-                        }
-                    }
-                }
-            }
-
+            nextT(generateCacti);
+            nextTime();
             requestAnimationFrame(draw);
         };
 
