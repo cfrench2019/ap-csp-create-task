@@ -156,7 +156,7 @@
         const totalStars = 50;
 
         // Hills
-        const backHillsY = 120;
+        const backHillsY = canvasHeight / 3;
         const backHillsOffset = getRandomNumber(0, canvasWidth);
         const minBackHillsAmplitude = 30;
         const maxBackHillsAmplitude = 40;
@@ -164,7 +164,7 @@
         const minBackHillsFrequency = 1;
         const maxBackHillsFrequency = 1.5;
         const backHillsFrequency = getRandomNumber(minBackHillsFrequency, maxBackHillsFrequency);
-        const frontHillsY = 180;
+        const frontHillsY = canvasHeight / 2;
         const frontHillsOffset = getRandomNumber(0, canvasWidth);
         const minFrontHillsAmplitude = 20;
         const maxFrontHillsAmplitude = 30;
