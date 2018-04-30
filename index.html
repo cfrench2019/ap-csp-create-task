@@ -1,15 +1,32 @@
-<html>
-  <head>
-    <title>Urban Setting</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="https://code.jquery.com/jquery-1.12.1.min.js"></script>
-    <script src="applab/applab-api.js"></script>
-    <link rel="stylesheet" href="applab/applab.css">
-    <link rel="stylesheet" href="style.css">
-  </head>
-  <body>
-    <div id="divApplab" class="appModern running" tabindex="1" style="width: 320px; height: 450px; display: block;"><div class="screen" tabindex="1" id="screen"></div></div>
-    <script src="code.js"></script>
-  </body>
+<!DOCTYPE html>
+<html class="no-js" lang="en-US">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>AP CSP Create Task - Desert</title>
+        <meta name="description" content="AP CSP Create Task submission.">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="stylesheet" href="css/normalize.css">
+        <link rel="stylesheet" href="css/main.css">
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="//browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+
+        <div class="centered">
+            <h1>AP CSP Create Task - Desert</h1>
+            <p>Explore the desert with your arrow keys! Double-click for a fullscreen experience.</p>
+            <div>
+                <canvas id="canvas" width="640" height="360"></canvas>
+                <span class="no-canvas-warning centered"></span>
+            </div>
+        </div>
+
+        <script src="js/vendor/modernizr.min.js"></script>
+        <script src="js/vendor/screenfull.min.js"></script>
+        <script src="js/plugins.js"></script>
+        <script src="js/main.js"></script>
+    </body>
 </html>
