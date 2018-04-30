@@ -57,7 +57,9 @@
          */
 
         const canvas = document.getElementById('canvas');
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', {
+            alpha: false
+        });
         const canvasWidth = canvas.width;
         const canvasHeight = canvas.height;
 
@@ -178,15 +180,15 @@
 
         // Cacti
         const minCactusY = groundLevel;
-        const maxCactusY = groundLevel + 50;
-        const minCactusR = 5;
-        const maxCactusR = 10;
-        const minCactusSegmentLength = 20;
-        const maxCactusSegmentLength = 50;
+        const maxCactusY = groundLevel + canvasHeight * 5 / 36;
+        const minCactusR = canvasHeight / 72;
+        const maxCactusR = canvasHeight / 36;
+        const minCactusSegmentLength = canvasHeight / 18;
+        const maxCactusSegmentLength = canvasHeight * 5 / 36;
         const minCactusSegments = 2;
         const maxCactusSegments = 10;
         const cactusGrowthDirections = [0, Math.PI, Math.PI * 3 / 2];
-        const verticalGrowthDirectionSkew = 5;
+        const verticalCactusGrowthBias = 5;
         const totalCacti = 7;
         const minCactusSpeed = 4;
         const maxCactusSpeed = 20;
@@ -374,7 +376,7 @@
                     growthDirection = getRandomElement(growthDirectionDifferences);
                 } else {
                     growthDirectionDifferences.sort((growthDirection1, growthDirection2) => growthDirection1 - growthDirection2);
-                    let tentativeGrowthDirection = getRandomElement(growthDirectionDifferences, () => gammaRandom(1 / verticalGrowthDirectionSkew));
+                    let tentativeGrowthDirection = getRandomElement(growthDirectionDifferences, () => gammaRandom(1 / verticalCactusGrowthBias));
 
                     if (tentativeGrowthDirection === cactusGrowthDirections[2]) {
                         growthDirection = tentativeGrowthDirection;
