@@ -147,6 +147,10 @@
          * ##############
          */
 
+        // Sky
+        const minNightOverlayOpacity = 0;
+        const maxNightOverlayOpacity = 0.6;
+
         // Stars
         const starR = 1;
         const totalStars = 50;
@@ -217,20 +221,20 @@
          * ##############
          */
 
-        const getNightOverlayA = function() {
-            return time < maxTime / 2 ? mapToRange(time, 0, maxTime / 2, 0, 0.5) : mapToRange(time, maxTime / 2, maxTime, 0.5, 0);
+        const getNightOverlayOpacity = function() {
+            return time < maxTime / 2 ? mapToRange(time, 0, maxTime / 2, minNightOverlayOpacity, maxNightOverlayOpacity) : mapToRange(time, maxTime / 2, maxTime, maxNightOverlayOpacity, minNightOverlayOpacity);
         };
 
         const drawSky = function() {
             ctx.save();
-            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(skyColor), hexToRgbArray(nightColor), getNightOverlayA()));
+            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(skyColor), hexToRgbArray(nightColor), getNightOverlayOpacity()));
             ctx.fillRect(0, 0, canvasWidth, canvasHeight);
             ctx.restore();
         };
 
         const drawStar = function() {
             ctx.save();
-            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(getFlattenedRgbArray(hexToRgbArray(skyColor), hexToRgbArray(nightColor), getNightOverlayA()), hexToRgbArray(starColor), getNightOverlayA()));
+            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(getFlattenedRgbArray(hexToRgbArray(skyColor), hexToRgbArray(nightColor), getNightOverlayOpacity()), hexToRgbArray(starColor), getNightOverlayOpacity()));
             ctx.beginPath();
             ctx.arc(this.x, this.y, starR, 0, Math.PI * 2);
             ctx.fill();
@@ -253,7 +257,7 @@
 
         const drawHills = function(y, offset, amplitude, frequency, color, t) {
             ctx.save();
-            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(color), hexToRgbArray(nightColor), getNightOverlayA()));
+            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(color), hexToRgbArray(nightColor), getNightOverlayOpacity()));
 
             ctx.beginPath();
             ctx.moveTo(0, y);
@@ -284,7 +288,7 @@
 
         const drawGround = function() {
             ctx.save();
-            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(sandColor), hexToRgbArray(nightColor), getNightOverlayA()));
+            ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(sandColor), hexToRgbArray(nightColor), getNightOverlayOpacity()));
             ctx.fillRect(0, groundLevel, canvasWidth, canvasHeight);
             ctx.restore();
         };
@@ -292,7 +296,7 @@
         const drawCactusSegment = function(x1, y1, x2, y2) {
             ctx.save();
             ctx.lineWidth = this.r * 2;
-            ctx.strokeStyle = ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(this.color), hexToRgbArray(nightColor), getNightOverlayA()));
+            ctx.strokeStyle = ctx.fillStyle = rgbArrayToHex(getFlattenedRgbArray(hexToRgbArray(this.color), hexToRgbArray(nightColor), getNightOverlayOpacity()));
 
             ctx.beginPath();
             ctx.arc(x1, y1, this.r, 0, Math.PI * 2);
